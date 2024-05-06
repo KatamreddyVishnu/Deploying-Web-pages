@@ -431,3 +431,35 @@ Run these command in all VM's
 
 
 # Thank you!
+Let's Start implementation:
+Here's a breakdown of the steps to implement the described Azure architecture:
+**1. Deploying VMs in Central US and West US:**
+- **Create Resource Group:** Create Singel resource group for both regions.
+- **Create Virtual Networks (VNets):** In each region, create a VNet with appropriate subnets for VMs and Application Gateway.
+- **Deploy VMs:**
+    - Use portal to deploy two Linux VMs (VM1 and VM2) in each region within their respective VNets.
+    - Choose a suitable VM size based on your resource requirements.
+    - Ensure SSH access is configured for later access.
+**2. Configuring Storage Account:**
+- Create a single storage account in one of the regions (e.g., Central US).
+- Within the storage account, create containers:
+    - `error`: This will host the `error.html` file for displaying error pages.
+**3. Uploading error.html and Configuring Application Gateway:**
+- Upload the `error.html` file from the GitHub repository to the `error` container in your storage account.
+- Deploy an Application Gateway in each region within its respective VNet.
+- Configure Application Gateway rules:
+    - Rule 1: Route traffic to VM2 (home page) for the root domain (`example.com`).
+    - Rule 2: Route traffic to VM1 (upload page) for the `/upload` path (`example.com/upload`).
+    - Configure Application Gateway to serve the `error.html` file from the storage account for 403 and 502 errors.
+**4. Deploying Code and Running Scripts:**
+- Clone the GitHub repository (`https://github.com/azcloudberg/azproject`) onto both VM1 and VM2 in each region.
+- Run the appropriate script on each VM:
+    - VM1: `./vm1.sh` (deploys the upload page)
+    - VM2: `./vm2.sh` (deploys the home page)
+- Edit the `config.py` file on VM1 and enter the storage account details for uploading files.
+- Run `sudo python3 app.py` on VM1 to start the upload functionality.
+**5. Configuring Traffic Manager:**
+- Create a Traffic Manager profile in the Azure portal.
+- Configure the profile to use the "Performance" routing method for optimal traffic distribution.
+- Add the public IP addresses of the Application Gateways in both regions as endpoints to the Traffic Manager profile.
+- Point your custom domain name (`example.com`) to the Traffic Manager profile's DNS name.
